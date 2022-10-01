@@ -41,15 +41,19 @@ enum GameStatus {
 }
 */
 
+const GRAVITY: f32 = 10.0;
+const JUMP_ACCEL: f32 = -500.0;
+
 fn start_game(
     time: Res<Time>,
     keys: Res<Input<KeyCode>>,
     mut query: Query<(&mut Transform, &mut Velocity), With<Crab>>,
 ) {
-    if keys.pressed(KeyCode::P) {
-        for (mut transform, mut vel) in query.iter_mut() {
-            vel.speed += 20.0;
-            transform.translation.y -= vel.speed * time.delta_seconds();
+    for (mut transform, mut vel) in query.iter_mut() {
+        vel.speed += GRAVITY;
+        if keys.just_pressed(KeyCode::Space) {
+            vel.speed = JUMP_ACCEL;
         }
+        transform.translation.y -= vel.speed * time.delta_seconds();
     }
 }
