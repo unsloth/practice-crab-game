@@ -1,11 +1,13 @@
 use bevy::prelude::*;
 
+const WIN_WIDTH: f32 = 800.0;
+const WIN_HEIGHT: f32 = 500.0;
 fn main() {
     App::new()
         .insert_resource(WindowDescriptor {
             title: "Crab Game".to_string(),
-            width: 800.0,
-            height: 500.0,
+            width: WIN_WIDTH,
+            height: WIN_HEIGHT,
             ..default()
         })
         .add_plugins(DefaultPlugins)
@@ -26,7 +28,7 @@ fn add_sprites(mut commands: Commands, asset_server: Res<AssetServer>) {
     commands.spawn_bundle(Camera2dBundle::default());
     commands
         .spawn_bundle(SpriteBundle {
-            transform: Transform::from_xyz(-300.0, 0.0, 0.0),
+            transform: Transform::from_xyz(-(WIN_WIDTH / 2.0) + 100.0, 0.0, 0.0),
             texture: asset_server.load("crab.png"),
             ..default()
         })
@@ -55,5 +57,14 @@ fn start_game(
             vel.speed = JUMP_ACCEL;
         }
         transform.translation.y -= vel.speed * time.delta_seconds();
+        // Put in limits to prevent going out of bounds.
+        // Later, implement a loss when hitting the limit
+        // Maybe only make the bottom bound a loss, upper bound can stay
+        if transform.translation.y > WIN_HEIGHT / 2.0 {
+            transform.translation.y = WIN_HEIGHT / 2.0;
+        }
+        if transform.translation.y < -WIN_HEIGHT / 2.0 {
+            transform.translation.y = -WIN_HEIGHT / 2.0;
+        }
     }
 }
