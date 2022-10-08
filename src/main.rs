@@ -6,8 +6,9 @@ const WIN_HEIGHT: f32 = 500.0;
 const GRAVITY: f32 = 10.0;
 const JUMP_ACCEL: f32 = -500.0;
 
-const BLOCK_WIDTH: f32 = 60.0;
-const BLOCK_SPEED: f32 = 252.0;
+const BLOCK_WIDTH: f32 = 70.0;
+const BLOCK_SPEED: f32 = 256.0;
+const BLOCK_GAP: f32 = 140.0;
 
 fn main() {
     App::new()
@@ -48,20 +49,46 @@ fn add_sprites(mut commands: Commands, asset_server: Res<AssetServer>) {
         .insert(Crab)
         .insert(Velocity { speed: 0.0 });
 
-    // block entity (obstacle)
+    // upper block entity (obstacle)
     commands
         .spawn_bundle(SpriteBundle {
             sprite: Sprite {
                 color: (Color::RED),
-                custom_size: (Some(Vec2::new(BLOCK_WIDTH, WIN_HEIGHT))),
+                custom_size: Some(Vec2::new(BLOCK_WIDTH, WIN_HEIGHT)),
                 ..default()
             },
-            transform: Transform::from_xyz(WIN_WIDTH / 2.0, 0.0, 0.0),
+            transform: Transform::from_xyz(
+                WIN_WIDTH / 2.0,
+                // to get the top of the block lined up with the top of the window
+                (WIN_HEIGHT / 2.0) + (BLOCK_GAP / 2.0),
+                0.0,
+            ),
+            ..default()
+        })
+        .insert(Block)
+        .insert(Velocity { speed: 0.0 });
+
+    // lower block entity (obstacle)
+
+    commands
+        .spawn_bundle(SpriteBundle {
+            sprite: Sprite {
+                color: (Color::RED),
+                custom_size: Some(Vec2::new(BLOCK_WIDTH, WIN_HEIGHT)),
+                ..default()
+            },
+            transform: Transform::from_xyz(
+                WIN_WIDTH / 2.0,
+                // to get the top of the block lined up with the top of the window
+                -WIN_HEIGHT / 2.0 - BLOCK_GAP / 2.0,
+                0.0,
+            ),
             ..default()
         })
         .insert(Block)
         .insert(Velocity { speed: 0.0 });
 }
+
 /*
 enum GameStatus {
     Menu,
