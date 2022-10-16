@@ -23,11 +23,22 @@ fn main() {
             ..default()
         })
         .add_plugins(DefaultPlugins)
-        .add_startup_system(add_sprites)
-        .add_system(start_gravity)
-        .add_system(start_block_move)
-        .add_system(check_collision)
+        .add_state(GameState::Play)
+        .add_startup_system(setup_camera)
+        .add_system_set(SystemSet::on_enter(GameState::Play).with_system(add_sprites))
+        .add_system_set(
+            SystemSet::on_update(GameState::Play)
+                .with_system(start_gravity)
+                .with_system(start_block_move)
+                .with_system(check_collision),
+        )
         .run();
+}
+#[derive(Debug, Clone, Eq, PartialEq, Hash)]
+enum GameState {
+    Menu,
+    Play,
+    Over,
 }
 
 #[derive(Component)]
@@ -41,9 +52,11 @@ struct Velocity {
     speed: f32,
 }
 
-fn add_sprites(mut commands: Commands, asset_server: Res<AssetServer>) {
+fn setup_camera(mut commands: Commands) {
     commands.spawn_bundle(Camera2dBundle::default());
+}
 
+fn add_sprites(mut commands: Commands, asset_server: Res<AssetServer>) {
     // crab entity (player)
     commands
         .spawn_bundle(SpriteBundle {
@@ -102,14 +115,6 @@ fn add_sprites(mut commands: Commands, asset_server: Res<AssetServer>) {
         .insert(Velocity { speed: 0.0 });
 }
 
-/*
-enum GameStatus {
-    Menu,
-    Play,
-    Over,
-}
-*/
-
 fn start_gravity(
     time: Res<Time>,
     keys: Res<Input<KeyCode>>,
@@ -144,7 +149,7 @@ fn start_block_move(
 
         if transform.translation.x < (-WIN_WIDTH / 2.0) - (BLOCK_WIDTH / 2.0) {
             transform.translation.x = (WIN_WIDTH / 2.0) + (BLOCK_WIDTH / 2.0);
-            println!("1 more!")
+            println!("1 more!");
 
             // the plan was to use a random number generator to randomly move the
             // y transform of the blocks. The issue is that I would then need to
