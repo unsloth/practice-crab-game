@@ -32,6 +32,7 @@ fn main() {
                 .with_system(start_block_move)
                 .with_system(check_collision),
         )
+        .add_system_set(SystemSet::on_enter(GameState::Over).with_system(display_end_screen))
         .run();
 }
 #[derive(Debug, Clone, Eq, PartialEq, Hash)]
@@ -166,6 +167,7 @@ fn start_block_move(
 }
 
 fn check_collision(
+    mut state: ResMut<State<GameState>>,
     crab_query: Query<(&Transform, &Sprite), With<Crab>>,
     block_query: Query<(&Transform, &Sprite), With<Block>>,
 ) {
@@ -184,7 +186,34 @@ fn check_collision(
         );
         if let Some(_collision) = collision {
             // will eventually make it change state to loss
-            println!("YOU LOSE");
+            state.set(GameState::Over).unwrap();
         }
     }
+}
+
+fn display_end_screen(mut commands: Commands, asset_server: Res<AssetServer>) {
+    commands.spawn_bundle(
+        TextBundle::from_section(
+            "Game Over",
+            TextStyle {
+                font: asset_server.load("fonts/arcadeclassic/ARCADECLASSIC.TTF"),
+                font_size: 100.0,
+                color: Color::WHITE,
+            },
+        )
+        .with_text_alignment(TextAlignment::CENTER)
+        // need to figure out how to justify content to center
+        .with_style(Style {
+            display: Display::Flex,
+            flex_direction: FlexDirection::Row,
+            align_self: AlignSelf::Center,
+            // janky way to horizontally center since 'justify_content' does nothing
+            position: UiRect {
+                left: Val::Px(WIN_WIDTH / 4.0),
+                ..default()
+            },
+            position_type: PositionType::Absolute,
+            ..default()
+        }),
+    );
 }
