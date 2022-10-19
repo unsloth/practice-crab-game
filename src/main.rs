@@ -1,5 +1,6 @@
 use bevy::prelude::*;
 use bevy::sprite::collide_aabb::collide;
+use fastrand;
 
 const FONT_PATH: &str = "fonts/arcadeclassic/ARCADECLASSIC.TTF";
 
@@ -134,11 +135,6 @@ fn add_sprites(mut commands: Commands, asset_server: Res<AssetServer>) {
                 ..default()
             },
             transform: Transform::from_xyz(-(WIN_WIDTH / 2.0) + 100.0, 0.0, 0.0),
-            // currently the initial transform is baked into the entity. May want
-            // to change it to being set when the game starts. Perhaps in
-            // start_gravity. Since the different game states won't have the crab
-            // in the same place. Main menu could have it center, for example.
-            // same with the blocks.
             texture: asset_server.load("crab.png"),
             ..default()
         })
